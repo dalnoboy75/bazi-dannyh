@@ -1,0 +1,64 @@
+1. SELECT LastName, FirstName
+from customers 
+WHERE City = "Prague"
+
+2.1. SELECT LastName, FirstName 
+from customers 
+WHERE FirstName LIKE "M%"
+
+2.2. SELECT LastName, FirstName 
+from customers 
+WHERE FirstName LIKE "%ch%"
+
+3. SELECT Name, (Bytes / 1048576) AS Megabytes  
+from tracks
+
+4. SELECT LastName, FirstName  
+from employees 
+WHERE City = "Calgary" AND strftime('%Y', HireDate) = "2002"
+
+5. SELECT LastName, FirstName  
+from employees 
+WHERE (JULIANDAY(HireDate) - JULIANDAY(BirthDate)) / 365 >= 40
+
+6. SELECT LastName, FirstName  
+from customers 
+WHERE Fax IS NULL
+
+7. SELECT DISTINCT ShipCity  
+from sales 
+WHERE ShipCountry = "Canada" AND strftime('%m', SalesDate) IN ("08", "09")
+
+8. SELECT Email  
+from customers 
+WHERE Email LIKE "%gmail.com"
+
+9. SELECT LastName,FirstName  
+from employees 
+WHERE (JULIANDAY("now") - JULIANDAY(HireDate)) / 365 >= 18
+
+10. SELECT DISTINCT Title  
+from employees 
+ORDER BY Title ASC
+
+11. SELECT LastName, FirstName, strftime("%Y", date("now", "-" || Age || " years")) AS BirthYear  
+from customers 
+ORDER BY LastName, FirstName, BirthYear
+
+12. SELECT MIN(Milliseconds / 1000) AS ShortestSong  
+from tracks
+
+13. SELECT Name, MIN(Milliseconds / 1000) AS ShortestSong  
+from tracks
+
+14. SELECT Country, AVG(Age) AS AverageAge  
+from customers 
+GROUP BY Country
+
+15. SELECT Lastname  
+from employees 
+WHERE strftime("%m", HireDate) = "10"
+
+16. SELECT Lastname  
+from employees 
+ORDER BY (JULIANDAY("now") - JULIANDAY(HireDate)) DESC LIMIT 1
