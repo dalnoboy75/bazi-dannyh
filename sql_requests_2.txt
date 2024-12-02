@@ -1,0 +1,129 @@
+1. JOIN:
+SELECT SUM(UnitPrice * Quantity) AS TotalSum
+  FROM sales
+       LEFT JOIN
+       sales_items ON sales.SalesId = sales_items.SalesId
+ WHERE (sales.SalesDate BETWEEN '2012-01-01' AND '2012-03-31') AND sales.ShipCountry = 'USA'
+
+Подзапросы:
+WITH id_sales AS (
+    SELECT SalesId
+      FROM sales
+     WHERE  (SalesDate BETWEEN '2012-01-01' AND '2012-03-31') AND ShipCountry = 'USA' 
+)
+SELECT SUM(UnitPrice * Quantity) AS TotalSum
+  FROM sales_items
+ WHERE SalesId IN (
+           SELECT SalesId
+             FROM id_sales
+        )
+
+2. Подзапросы:
+WITH work_names AS (
+    SELECT DISTINCT (employees.FirstName) AS FirstName
+      FROM employees
+)
+SELECT DISTINCT (customers.FirstName) AS ClientName
+  FROM customers
+ WHERE customers.FirstName NOT IN (
+           SELECT FirstName
+             FROM work_names
+       )
+
+JOIN:
+SELECT DISTINCT (customers.FirstName) 
+  FROM customers
+       LEFT JOIN
+       employees ON customers.FirstName = employees.FirstName
+ WHERE employees.FirstName IS NULL
+
+Логическое вычитание:
+SELECT DISTINCT (customers.FirstName)
+FROM customers
+EXCEPT
+SELECT employees.FirstName
+FROM employees
+
+
+3.
+Первый запрос объединит таблицы и выведет только те строки, в которых t1.column1 = 0.
+Во втором запросе в таблице объединение произойдёт с доп. условием (то есть объединятся строки где t1.column1 = 0), а в остальных строчках столбцы из второй таблицы заполнятся NULL.
+При этом выведется полное объединение таблиц.
+Получаем, что во втором случае мы получим больше строк.
+
+
+4.Подзапросы:
+WITH tr AS (
+    SELECT AlbumId,
+           COUNT(TrackId) AS TrackCount
+      FROM tracks
+     GROUP BY AlbumId
+)
+SELECT (SELECT Title from albums where albums.AlbumId = tr.AlbumId) AS Name,
+       TrackCount
+  FROM tr
+  ORDER BY Name
+
+JOIN:
+SELECT 
+    albums.Title, 
+    COUNT(DISTINCT tracks.TrackId) AS TrackCount
+FROM 
+    tracks 
+LEFT JOIN 
+    albums ON tracks.AlbumId = albums.AlbumId
+GROUP BY 
+    albums.Title
+
+
+5.
+SELECT customers.LastName,
+       customers.FirstName
+  FROM customers JOIN sales ON customers.CustomerId = sales.CustomerId
+ WHERE customers.Country = 'Germany' AND sales.ShipCity = 'Berlin' AND strftime('%Y', sales.SalesDate) = '2009'
+ 
+6.
+JOIN:
+SELECT customers.LastName
+  FROM (
+           SELECT *
+             FROM sales_items LEFT JOIN sales ON sales.SalesId = sales_items.SalesId
+       ) AS c JOIN customers ON c.CustomerId = customers.CustomerId
+ GROUP BY  c.CustomerId
+HAVING SUM(c.Quantity) > 30
+
+Подзапросы:
+WITH sq AS (
+    SELECT SalesId, SUM(Quantity) AS SumTracks
+      FROM sales_items
+     GROUP BY SalesId
+)
+SELECT LastName FROM customers
+ WHERE CustomerId IN (
+           SELECT CustomerId
+             FROM (
+                      SELECT sales.CustomerId, SUM(sq.SumTracks) AS ST
+                        FROM sales JOIN sq ON sales.SalesId = sq.SalesId
+                             GROUP BY CustomerId
+                  )
+            WHERE ST > 30
+       )
+
+7.
+SELECT genres.Name, AVG(tracks.UnitPrice) AS APrice
+FROM tracks JOIN genres ON tracks.GenreId = genres.GenreId
+GROUP BY tracks.GenreId
+
+8.
+SELECT genres.Name
+FROM tracks JOIN genres ON tracks.GenreId = genres.GenreId
+GROUP BY tracks.GenreId
+HAVING  AVG(tracks.UnitPrice) > 1
+
+
+
+
+
+
+
+
